@@ -6,18 +6,20 @@ from TwitchChannelPointsMiner import TwitchChannelPointsMiner
 from TwitchChannelPointsMiner.logger import LoggerSettings, ColorPalette
 from TwitchChannelPointsMiner.classes.Chat import ChatPresence
 from TwitchChannelPointsMiner.classes.Discord import Discord
-from TwitchChannelPointsMiner.classes.Webhook import Webhook
 from TwitchChannelPointsMiner.classes.Telegram import Telegram
 from TwitchChannelPointsMiner.classes.Matrix import Matrix
 from TwitchChannelPointsMiner.classes.Pushover import Pushover
 from TwitchChannelPointsMiner.classes.Settings import Priority, Events, FollowersOrder
 from TwitchChannelPointsMiner.classes.entities.Bet import Strategy, BetSettings, Condition, OutcomeKeys, FilterCondition, DelayMode
 from TwitchChannelPointsMiner.classes.entities.Streamer import Streamer, StreamerSettings
+from keep_alive import keep_alive
+import os
 
+keep_alive()
 
 twitch_miner = TwitchChannelPointsMiner(
-    username="roc4et_",
-    password="Roc4et187!",           # If no password will be provided, the script will ask interactively
+    username=os.environ.get('username'),
+    password=os.environ.get('password'),           # If no password will be provided, the script will ask interactively
     claim_drops_startup=False,                  # If you want to auto claim all drops from Twitch inventory on the startup
     priority=[                                  # Custom priority in this case for example:
         Priority.STREAK,                        # - We want first of all to catch all watch streak from all streamers
@@ -40,7 +42,7 @@ twitch_miner = TwitchChannelPointsMiner(
         color_palette=ColorPalette(             # You can also create a custom palette color (for the common message).
             STREAMER_online="GREEN",            # Don't worry about lower/upper case. The script will parse all the values.
             streamer_offline="red",             # Read more in README.md
-            BET_wiN=Fore.YELLOW                # Color allowed are: [BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET].
+            BET_wiN=Fore.MAGENTA                # Color allowed are: [BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, RESET].
         ),
         telegram=Telegram(                                                          # You can omit or set to None if you don't want to receive updates on Telegram
             chat_id=123456789,                                                      # Chat ID to send messages @getmyid_bot
@@ -54,25 +56,19 @@ twitch_miner = TwitchChannelPointsMiner(
             events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE,
                     Events.BET_LOSE, Events.CHAT_MENTION],                                  # Only these events will be sent to the chat
         ),
-        webhook=Webhook(
-            endpoint="https://example.com/webhook",                                                                    # Webhook URL
-            method="GET",                                                                   # GET or POST
-            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE,
-                    Events.BET_LOSE, Events.CHAT_MENTION],                                  # Only these events will be sent to the endpoint
-        ),
         matrix=Matrix(
             username="twitch_miner",                                                   # Matrix username (without homeserver)
             password="...",                                                            # Matrix password
             homeserver="matrix.org",                                                   # Matrix homeserver
             room_id="...",                                                             # Room ID
-            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE, Events.BET_LOSE], # Only these events will be sent
+            events=[Events.STREAMER_ONLINE, Events.STREAMER_OFFLINE, Events.BET_LOSE], # Only these events will be sent to the chat
         ),
         pushover=Pushover(
-            userkey="YOUR-ACCOUNT-TOKEN",                                             # Login to https://pushover.net/, the user token is on the main page
-            token="YOUR-APPLICATION-TOKEN",                                           # Create a application on the website, and use the token shown in your application
+            userkey="YOUR-ACCOUNT-TOKEN",                                             # Login to https://pushover.net/, the user token is on the main page.
+            token="YOUR-APPLICATION-TOKEN",                                           # Create a application on the website, and use the token shown in your application.
             priority=0,                                                               # Read more about priority here: https://pushover.net/api#priority
             sound="pushover",                                                         # A list of sounds can be found here: https://pushover.net/api#sounds
-            events=[Events.CHAT_MENTION, Events.DROP_CLAIM],                          # Only these events will be sent
+            events=[Events.CHAT_MENTION, Events.DROP_CLAIM],                          # Only these events will be sent.
         )
     ),
     streamer_settings=StreamerSettings(
